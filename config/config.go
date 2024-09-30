@@ -9,13 +9,15 @@ import (
 )
 
 type Config struct {
-	ACTION_BOARD string
-	DB_PASSWORD     string
-	DB_HOST         string
-	DB_PORT         int
-	DB_USER         string
-	DB_NAME         string
+	ACTION_BOARD          string
+	ACCOMMODATION_SERVICE string
+	DB_PASSWORD           string
+	DB_HOST               string
+	DB_PORT               int
+	DB_USER               string
+	DB_NAME               string
 }
+
 func Load() Config {
 	path, err := os.Getwd()
 	if err != nil {
@@ -35,6 +37,7 @@ func Load() Config {
 	config.DB_PASSWORD = cast.ToString(Coalesce("DB_PASSWORD", "secret"))
 	config.DB_NAME = cast.ToString(Coalesce("DB_NAME", "secret"))
 	config.ACTION_BOARD = cast.ToString(Coalesce("ACTION_BOARD", "secret"))
+	config.ACCOMMODATION_SERVICE = cast.ToString(Coalesce("ACCOMMODATION_SERVICE", "secret"))
 
 	return config
 }
