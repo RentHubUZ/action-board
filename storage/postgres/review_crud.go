@@ -149,7 +149,8 @@ func (r *ReviewsRepository) DeleteReview(ctx context.Context, req *pb.DeleteRevi
 			where 
 				id = $2 and deleted_at is null`
 
-	_, err := r.Db.ExecContext(ctx, query, req.Id)
+	newtime:=time.Now()
+	_, err := r.Db.ExecContext(ctx, query, newtime,req.Id)
 	if err != nil {
 		r.Log.Error(fmt.Sprintf("Error deleting reference by id: %v",err.Error()))
 		return nil,err
