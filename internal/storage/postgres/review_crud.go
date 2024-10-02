@@ -1,18 +1,18 @@
 package postgres
 
 import (
-	"action_board/config"
-	pb "action_board/genproto/reviews"
-	"action_board/pkg/logger"
-	"action_board/storage"
+	pb "action-board/genproto/reviews"
+	"action-board/internal/config"
+	logger "action-board/internal/pkg/logs"
+	"action-board/internal/storage"
 	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
 	"time"
 
-	accopb "action_board/genproto/accommodation"
-	client "action_board/pkg"
+	accopb "action-board/genproto/accommodation"
+	client "action-board/internal/pkg"
 
 	"github.com/google/uuid"
 )
@@ -135,7 +135,7 @@ func (r *ReviewsRepository) GetByIdReview(ctx context.Context, req *pb.GetByIdRe
 		&review.PropertyId, &review.Rating, &review.Comment, &review.CreatedAt, &review.UpdatedAt)
 	if err != nil {
 		r.Log.Error(fmt.Sprintf("Error retrieving information about reiew's id: %v", err.Error()))
-		return nil,err
+		return nil, err
 	}
 
 	return &review, nil
@@ -149,13 +149,13 @@ func (r *ReviewsRepository) DeleteReview(ctx context.Context, req *pb.DeleteRevi
 			where 
 				id = $2 and deleted_at is null`
 
-	newtime:=time.Now()
-	_, err := r.Db.ExecContext(ctx, query, newtime,req.Id)
+	newtime := time.Now()
+	_, err := r.Db.ExecContext(ctx, query, newtime, req.Id)
 	if err != nil {
-		r.Log.Error(fmt.Sprintf("Error deleting reference by id: %v",err.Error()))
-		return nil,err
+		r.Log.Error(fmt.Sprintf("Error deleting reference by id: %v", err.Error()))
+		return nil, err
 	}
 	return &pb.DeleteReviewRes{
 		Message: "Your comment has been successfully deleted",
-	},nil
+	}, nil
 }

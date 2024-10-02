@@ -1,12 +1,12 @@
 package postgres
 
 import (
-	"action_board/config"
-	accopb "action_board/genproto/accommodation"
-	pbf "action_board/genproto/favorites"
-	client "action_board/pkg"
-	"action_board/pkg/logger"
-	"action_board/storage"
+	accopb "action-board/genproto/accommodation"
+	pbf "action-board/genproto/favorites"
+	"action-board/internal/config"
+	"action-board/internal/storage"
+	client "action-board/internal/pkg"
+	"action-board/internal/pkg/logs"
 	"context"
 	"database/sql"
 	"fmt"
@@ -110,7 +110,7 @@ func (f *FavoriteRepository) GetAllFavorites(ctx context.Context, req *pbf.GetAl
 
 	return &pbf.GetAllFavoritesRes{
 		Favorites: favorites,
-	},nil
+	}, nil
 }
 
 func (f *FavoriteRepository) GetByIdFavorites(ctx context.Context, req *pbf.GetByIdFavoritesReq) (*pbf.GetByIdFavoritesRes, error) {
@@ -122,29 +122,29 @@ func (f *FavoriteRepository) GetByIdFavorites(ctx context.Context, req *pbf.GetB
 				id = $1`
 
 	favorite := pbf.GetByIdFavoritesRes{}
-	err := f.Db.QueryRowContext(ctx,query,req.Id).Scan(
-				&favorite.Id,
-				&favorite.UserId,
-				&favorite.PropertyId,
-				&favorite.CreatedAt,
-	)	
+	err := f.Db.QueryRowContext(ctx, query, req.Id).Scan(
+		&favorite.Id,
+		&favorite.UserId,
+		&favorite.PropertyId,
+		&favorite.CreatedAt,
+	)
 	if err != nil {
 		f.Log.Error(fmt.Sprintf("Error retrieving information about favorite's id: %v", err.Error()))
-		return nil,err
+		return nil, err
 	}
-	return &favorite,nil
+	return &favorite, nil
 }
 
 func (f *FavoriteRepository) DeleteFavorites(ctx context.Context, req *pbf.DeleteFavoritesReq) (*pbf.DeleteFavoritesRes, error) {
 	query := `delete from favorites where id = $1`
 
-	_,err := f.Db.ExecContext(ctx,query,req.Id)
+	_, err := f.Db.ExecContext(ctx, query, req.Id)
 	if err != nil {
-		f.Log.Error(fmt.Sprintf("Error deleting reference by id: %v",err.Error()))
-		return nil,err
+		f.Log.Error(fmt.Sprintf("Error deleting reference by id: %v", err.Error()))
+		return nil, err
 	}
 
 	return &pbf.DeleteFavoritesRes{
 		Message: "Your comment has been successfully deleted",
-	},nil
+	}, nil
 }

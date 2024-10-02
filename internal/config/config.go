@@ -23,7 +23,7 @@ func Load() Config {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Current path: ", path)
+	// log.Println("Current path: ", path)
 
 	// ".env" faylining to'liq pathi
 	if err := godotenv.Load(path + "/.env"); err != nil {

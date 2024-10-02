@@ -1,14 +1,20 @@
 package storage
 
 import (
-	pb "action_board/genproto/reviews"
-	pbf "action_board/genproto/favorites"
+	pbf "action-board/genproto/favorites"
+	pb "action-board/genproto/reviews"
+	pbr "action-board/genproto/report"
+	pbrq "action-board/genproto/request"
+	pbnt "action-board/genproto/notification"
 	"context"
 )
 
 type IStorage interface {
 	Review() IReviewsStorage
 	Favorites() IFavoritesStorage
+	Report() IReportStorage
+	Request() IRequestStorage
+	Notification() INotificationStorage
 	Close()
 }
 
@@ -24,4 +30,19 @@ type IFavoritesStorage interface {
 	GetAllFavorites(ctx context.Context, req *pbf.GetAllFavoritesReq) (*pbf.GetAllFavoritesRes, error)
 	GetByIdFavorites(ctx context.Context, req *pbf.GetByIdFavoritesReq) (*pbf.GetByIdFavoritesRes, error)
 	DeleteFavorites(ctx context.Context, req *pbf.DeleteFavoritesReq) (*pbf.DeleteFavoritesRes, error)
+}
+
+type IReportStorage interface {
+	Create(ctx context.Context, req *pbr.CreateReportRequest) (*pbr.CreateReportResponse, error)
+	Get(ctx context.Context, req *pbr.GetReportRequest) (*pbr.GetReportResponse, error)
+}
+
+type IRequestStorage interface {
+	Create(ctx context.Context, req *pbrq.CreateRequestRequest) (*pbrq.CreateRequestResponse, error)
+	Get(ctx context.Context, req *pbrq.GetRequestRequest) (*pbrq.GetRequestResponse, error)
+}
+
+type INotificationStorage interface {
+	Create(ctx context.Context, req *pbnt.CreateNotificationRequest) (*pbnt.CreateNotificationResponse, error)
+	Get(ctx context.Context, req *pbnt.GetNotificationRequest) (*pbnt.GetNotificationResponse, error)
 }

@@ -1,14 +1,17 @@
 package main
 
 import (
-	"action_board/config"
-	"action_board/pkg/logger"
-	"action_board/service"
-	"action_board/storage/postgres"
+	pbf "action-board/genproto/favorites"
+	pbr "action-board/genproto/reviews"
+	pbrq "action-board/genproto/request"
+	pbnt "action-board/genproto/notification"
+	pbrep "action-board/genproto/report"
+	"action-board/internal/config"
+	logger "action-board/internal/pkg/logs"
+	"action-board/internal/storage/postgres"
+	"action-board/internal/service"
 	"log"
 	"net"
-	pbf "action_board/genproto/favorites"
-	pbr "action_board/genproto/reviews"
 
 	"google.golang.org/grpc"
 )
@@ -26,14 +29,20 @@ func main() {
 	}
 
 	logs := logger.NewLogger()
-	serviceReview := service.NewReviewService(db,logs)
-	serviceFavorite := service.NewFavoriteService(db,logs)
+	serviceReview := service.NewReviewService(db, logs)
+	serviceFavorite := service.NewFavoriteService(db, logs)
+	serviceReport := service.NewReportService(db, logs)
+	serviceRequest := service.NewRequestService(db, logs)
+	serviceNotification := service.NewNotificationService(db, logs)
 
 	server := grpc.NewServer()
-	pbr.RegisterReviewsServer(server,serviceReview)
-	pbf.RegisterFavoritesServer(server,serviceFavorite)
-	
+	pbr.RegisterReviewsServer(server, serviceReview)
+	pbf.RegisterFavoritesServer(server, serviceFavorite)
+	pbrep.RegisterReportServiceServer(server, serviceReport)
+	pbrq.RegisterRequestServiceServer(server, serviceRequest)
+	pbnt.RegisterNotificationServiceServer(server, serviceNotification)
 
+	log.Printf("Server is listening on port %s\n", config.Load().ACTION_BOARD)
 	err = server.Serve(listener)
 	if err != nil {
 		log.Fatal(err)

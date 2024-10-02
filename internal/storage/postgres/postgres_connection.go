@@ -1,8 +1,8 @@
 package postgres
 
 import (
-	"action_board/config"
-	"action_board/storage"
+	"action-board/internal/config"
+	"action-board/internal/storage"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -47,4 +47,16 @@ func (p *postgresStorage) Review() storage.IReviewsStorage {
 
 func (p *postgresStorage) Favorites() storage.IFavoritesStorage {
 	return NewFavoritesRepository(p.db)
+}
+
+func (p *postgresStorage) Report() storage.IReportStorage {
+	return NewReportRepository(p.db)
+}
+
+func (p *postgresStorage) Request() storage.IRequestStorage {
+	return NewRequestRepository(p.db)
+}
+
+func (p *postgresStorage) Notification() storage.INotificationStorage {
+	return NewNotificationRepository(p.db)
 }

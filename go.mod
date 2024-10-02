@@ -1,4 +1,4 @@
-module action_board
+module action-board
 
 go 1.22.4
 
