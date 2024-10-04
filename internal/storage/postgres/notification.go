@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -33,12 +34,27 @@ func NewNotificationRepository(db *sql.DB) storage.INotificationStorage {
 
 // CreateNotification funksiyasi
 func (r *NotificationRepository) Create(ctx context.Context, req *pb.CreateNotificationRequest) (*pb.CreateNotificationResponse, error) {
-	query := `INSERT INTO notifications (id, user_id, content, is_read) 
-			  VALUES ($1, $2, $3, $4)`
+	tx, err := r.Db.BeginTx(ctx, nil)
+	if err != nil {
+		r.Log.Error("failed to start transaction", slog.Any("error", err))
+		return nil, err
+	}
 
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback() 
+		} else {
+			err = tx.Commit() 
+		}
+	}()
+
+	query := `INSERT INTO notifications (id, user_id, content, is_read) VALUES ($1, $2, $3, $4)`
 	id := uuid.New().String()
 
-	_, err := r.Db.ExecContext(ctx, query, id, req.UserId, req.Content, req.IsRead)
+	_, err = tx.ExecContext(ctx, query, id, req.UserId, req.Content, req.IsRead)
 	if err != nil {
 		r.Log.Error("failed to create notification", slog.Any("error", err))
 		return nil, err
@@ -60,7 +76,6 @@ func (r *NotificationRepository) Get(ctx context.Context, req *pb.GetNotificatio
 	query := `SELECT id, user_id, content, is_read, created_at FROM notifications WHERE id = $1`
 
 	var notification pb.Notification
-
 	err := r.Db.QueryRowContext(ctx, query, req.Id).Scan(
 		&notification.Id,
 		&notification.UserId,
@@ -68,10 +83,11 @@ func (r *NotificationRepository) Get(ctx context.Context, req *pb.GetNotificatio
 		&notification.IsRead,
 		&notification.CreatedAt,
 	)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			r.Log.Warn("notification not found", slog.String("id", req.Id))
-			return nil, nil
+			return nil, fmt.Errorf("notification not found")
 		}
 		r.Log.Error("failed to get notification", slog.Any("error", err))
 		return nil, err
