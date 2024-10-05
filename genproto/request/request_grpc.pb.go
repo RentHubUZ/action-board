@@ -21,16 +21,16 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	RequestService_CreateRequest_FullMethodName = "/request.RequestService/CreateRequest"
 	RequestService_GetRequest_FullMethodName    = "/request.RequestService/GetRequest"
+	RequestService_DeleteRequest_FullMethodName = "/request.RequestService/DeleteRequest"
 )
 
 // RequestServiceClient is the client API for RequestService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// RequestService interfeysi
 type RequestServiceClient interface {
 	CreateRequest(ctx context.Context, in *CreateRequestRequest, opts ...grpc.CallOption) (*CreateRequestResponse, error)
 	GetRequest(ctx context.Context, in *GetRequestRequest, opts ...grpc.CallOption) (*GetRequestResponse, error)
+	DeleteRequest(ctx context.Context, in *DeleteRequestRequest, opts ...grpc.CallOption) (*Void, error)
 }
 
 type requestServiceClient struct {
@@ -61,14 +61,23 @@ func (c *requestServiceClient) GetRequest(ctx context.Context, in *GetRequestReq
 	return out, nil
 }
 
+func (c *requestServiceClient) DeleteRequest(ctx context.Context, in *DeleteRequestRequest, opts ...grpc.CallOption) (*Void, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Void)
+	err := c.cc.Invoke(ctx, RequestService_DeleteRequest_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RequestServiceServer is the server API for RequestService service.
 // All implementations must embed UnimplementedRequestServiceServer
 // for forward compatibility.
-//
-// RequestService interfeysi
 type RequestServiceServer interface {
 	CreateRequest(context.Context, *CreateRequestRequest) (*CreateRequestResponse, error)
 	GetRequest(context.Context, *GetRequestRequest) (*GetRequestResponse, error)
+	DeleteRequest(context.Context, *DeleteRequestRequest) (*Void, error)
 	mustEmbedUnimplementedRequestServiceServer()
 }
 
@@ -84,6 +93,9 @@ func (UnimplementedRequestServiceServer) CreateRequest(context.Context, *CreateR
 }
 func (UnimplementedRequestServiceServer) GetRequest(context.Context, *GetRequestRequest) (*GetRequestResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRequest not implemented")
+}
+func (UnimplementedRequestServiceServer) DeleteRequest(context.Context, *DeleteRequestRequest) (*Void, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteRequest not implemented")
 }
 func (UnimplementedRequestServiceServer) mustEmbedUnimplementedRequestServiceServer() {}
 func (UnimplementedRequestServiceServer) testEmbeddedByValue()                        {}
@@ -142,6 +154,24 @@ func _RequestService_GetRequest_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RequestService_DeleteRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRequestRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RequestServiceServer).DeleteRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RequestService_DeleteRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RequestServiceServer).DeleteRequest(ctx, req.(*DeleteRequestRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RequestService_ServiceDesc is the grpc.ServiceDesc for RequestService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -156,6 +186,10 @@ var RequestService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRequest",
 			Handler:    _RequestService_GetRequest_Handler,
+		},
+		{
+			MethodName: "DeleteRequest",
+			Handler:    _RequestService_DeleteRequest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

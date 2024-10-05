@@ -13,6 +13,7 @@ import (
 	"action-board/internal/storage"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type RequestRepository struct {
@@ -36,7 +37,7 @@ func (r *RequestRepository) Create(ctx context.Context, req *pb.CreateRequestReq
 
 	id := uuid.New().String()
 
-	_, err := r.Db.ExecContext(ctx, query, id, req.UserId, req.Email, req.RoommateCount, req.PhoneNumber)
+	_, err := r.Db.ExecContext(ctx, query, id, req.UserId, pq.Array(req.Email), req.RoommateCount, req.PhoneNumber)
 	if err != nil {
 		r.Log.Error("failed to create request", slog.Any("error", err))
 		return nil, err
@@ -75,4 +76,17 @@ func (r *RequestRepository) Get(ctx context.Context, req *pb.GetRequestRequest) 
 	}
 
 	return &pb.GetRequestResponse{Request: &request}, nil
+}
+
+func (r *RequestRepository) Delete(ctx context.Context, req *pb.DeleteRequestRequest) (*pb.Void, error) {
+	query := `DELETE FROM requests WHERE id = $1`
+
+	_, err := r.Db.ExecContext(ctx, query, req.Id)
+	if err != nil {
+		r.Log.Error("failed to delete request", slog.Any("error", err))
+		return nil, err
+	}
+
+	r.Log.Info("request deleted successfully", slog.String("id", req.Id))
+	return &pb.Void{}, nil
 }

@@ -40,6 +40,7 @@ type IReportStorage interface {
 type IRequestStorage interface {
 	Create(ctx context.Context, req *pbrq.CreateRequestRequest) (*pbrq.CreateRequestResponse, error)
 	Get(ctx context.Context, req *pbrq.GetRequestRequest) (*pbrq.GetRequestResponse, error)
+	Delete(ctx context.Context, req *pbrq.DeleteRequestRequest) (*pbrq.Void, error)
 }
 
 type INotificationStorage interface {

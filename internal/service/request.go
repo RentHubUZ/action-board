@@ -22,7 +22,7 @@ func NewRequestService(db *sql.DB, log *slog.Logger) *RequestService {
 	}
 }
 
-func (s *RequestService) Create(ctx context.Context, req *pb.CreateRequestRequest) (*pb.CreateRequestResponse, error) {
+func (s *RequestService) CreateRequest(ctx context.Context, req *pb.CreateRequestRequest) (*pb.CreateRequestResponse, error) {
 	s.Log.Info("Create request", slog.Any("request", req))
 	res, err := s.Request.Request().Create(ctx, req)
 	if err != nil {
@@ -32,11 +32,21 @@ func (s *RequestService) Create(ctx context.Context, req *pb.CreateRequestReques
 	return res, nil
 }
 
-func (s *RequestService) Get(ctx context.Context, req *pb.GetRequestRequest) (*pb.GetRequestResponse, error) {
+func (s *RequestService) GetRequest(ctx context.Context, req *pb.GetRequestRequest) (*pb.GetRequestResponse, error) {
 	s.Log.Info("Get request", slog.Any("request", req))
 	res, err := s.Request.Request().Get(ctx, req)
 	if err != nil {
 		s.Log.Error("failed to get request", slog.Any("error", err))
+		return nil, err
+	}
+	return res, nil
+}
+
+func (s *RequestService) DeleteRequest(ctx context.Context, req *pb.DeleteRequestRequest) (*pb.Void, error) {
+	s.Log.Info("Delete request", slog.Any("request", req))
+	res, err := s.Request.Request().Delete(ctx, req)
+	if err != nil {
+		s.Log.Error("failed to delete request", slog.Any("error", err))
 		return nil, err
 	}
 	return res, nil
